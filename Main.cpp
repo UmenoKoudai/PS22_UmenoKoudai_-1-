@@ -7,7 +7,6 @@ namespace constants {
 		constexpr double SPEED = 480.0;
 	}
 	//ブロックの情報
-	
 	namespace brick {
 		/// @brief ブロックのサイズ
 		constexpr Size SIZE{ 40, 20 };
@@ -20,12 +19,31 @@ namespace constants {
 		/// @brief 合計ブロック数
 		constexpr int MAX = Y_COUNT * X_COUNT;
 	}
-
+	//パドルの情報
 	namespace paddle {
 		constexpr Size SIZE{ 60, 10 };
 	}
 }
 
+#pragma region スコアクラス
+
+class Score {
+	const Font font{ FontMethod::MSDF, 48 };
+public:
+	int score;
+
+	Score() : score(0) {}
+	void Draw() {
+		font(U"Score:{}"_fmt(score)).draw(25, Vec2{ 25, 25 }, Palette::White);
+	}
+
+	void AddScore(int value) {
+		score += value;
+	}
+};
+#pragma endregion
+
+#pragma region ボールクラス
 class Ball {
 public:
 	enum BallState {
@@ -78,6 +96,9 @@ public:
 		}
 	}
 };
+#pragma endregion
+
+#pragma region ブロッククラス
 
 class Blocks {
 public:
@@ -102,7 +123,7 @@ public:
 		}
 	}
 
-	void Intersects(Ball* target) {
+	void Intersects(Ball* target, Score* score) {
 		 //ブロックとの衝突を検知
 		for (int i = 0; i < constants::brick::MAX; ++i) {
 			auto& refBrick = bricks[i];
@@ -119,6 +140,7 @@ public:
 					target->velocity.x *= -1;
 				}
 
+				score->AddScore(100);
 				 //あたったブロックは画面外に出す
 				refBrick.y -= 600;
 	
@@ -128,7 +150,9 @@ public:
 		}
 	}
 };
+#pragma endregion
 
+#pragma region パドルクラス
 class Paddle final { //←ファイナルはこのクラスを継承してはいけないということです
 public:
 	Rect paddle;
@@ -155,22 +179,26 @@ public:
 		}
 	}
 };
+#pragma endregion
+
 
 void Main()
 {
 	Ball ball;
 	Blocks blocks;
 	Paddle paddle;
+	Score score;
 
 	while (System::Update())
 	{
 		ball.Draw();
 		blocks.Draw();
 		paddle.Draw();
+		score.Draw();
 		ball.Update();
 		paddle.Update();
 		ball.Intersects(&ball);
-		blocks.Intersects(&ball);
+		blocks.Intersects(&ball, &score);
 		paddle.Intersects(&ball);
 	}
 }
