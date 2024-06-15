@@ -37,7 +37,7 @@ public:
 	Circle ball;
 	BallState ball_state;
 
-	Ball() : velocity({ 0, -constants::ball::SPEED }), ball(400, 400, 8), ball_state(Move), init_pos({ 0, -constants::ball::SPEED }) {}
+	Ball() : velocity({ 0, -constants::ball::SPEED }), ball(400, 400, 8), ball_state(Move), init_pos(400, 400) {}
 
 	void Draw() {
 		// ボール描画
@@ -46,7 +46,21 @@ public:
 
 	void Update() {
 		 //ボール移動　↓これを使わないとSiv3Dの物理挙動にならない
-		ball.moveBy(velocity * Scene::DeltaTime());
+		switch (ball_state){
+		case Ball::Move:
+			ball.moveBy(velocity * Scene::DeltaTime());
+			if (ball.y > 600) {
+				ball_state = Respawn;
+			}
+			break;
+		case Ball::Respawn:
+			ball.setPos(init_pos);
+			ball_state = Move;
+			velocity = { 0, -constants::ball::SPEED };
+			break;
+		default:
+			break;
+		}
 	}
 
 	void Intersects(Ball* target) {
