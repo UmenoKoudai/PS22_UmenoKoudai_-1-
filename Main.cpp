@@ -9,7 +9,7 @@ namespace constants {
 	//ブロックの情報
 	namespace brick {
 		/// @brief ブロックのサイズ
-		constexpr Size SIZE{ 40, 20 };
+		constexpr Size SIZE{100, 40 };
 		/// @brief ブロックの数　縦
 		constexpr int Y_COUNT = 5;
 
@@ -24,6 +24,20 @@ namespace constants {
 		constexpr Size SIZE{ 60, 10 };
 	}
 }
+class Ball;
+class Blocks;
+class Paddle;
+
+//#pragma region アイテムクラス
+//class ItemBase {
+//public:
+//	abstract void Ability() {
+//
+//	}
+//};
+//
+//#pragma endregion
+
 
 #pragma region スコアクラス
 
@@ -103,10 +117,14 @@ public:
 class Blocks {
 public:
 	Rect bricks[constants::brick::MAX];
+	Texture block_texture{ U"example/Vantan.png" };
+	Texture textures[constants::brick::MAX];
 	Blocks(){
+
 		for (int y = 0; y < constants::brick::Y_COUNT; ++y) {
 			for (int x = 0; x < constants::brick::X_COUNT; ++x) {
 				int index = y * constants::brick::X_COUNT + x;
+				textures[index] = block_texture;
 				bricks[index] = Rect{
 					x * constants::brick::SIZE.x,
 					60 + y * constants::brick::SIZE.y,
@@ -120,6 +138,7 @@ public:
 		 //ブロック描画
 		for (int i = 0; i < constants::brick::MAX; ++i) {
 			bricks[i].stretched(-1).draw(HSV{ bricks[i].y - 40 });
+			textures[i].resized(constants::brick::SIZE).drawAt(bricks[i].center());
 		}
 	}
 
